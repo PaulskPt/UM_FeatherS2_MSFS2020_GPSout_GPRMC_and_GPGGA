@@ -24,11 +24,15 @@ e) Adafruit ISO154x, Bidirectional I2C Isolator STEMMA QT/Qwii ( Product nr 4903
 
 Flow of the GPS data:  PC MSFS2020 w FSUIPC7 > COMx > MCP2221 TX/RX > FeatherS2 RX/TX.
 ```
-I2C connection #1: MCP2221 QT > QT ISO154x QT > QT FeatherS2
-I2C connection #2: MCP2221 5V > QT serLCD red wire
+I2C connection:    MCP2221 5V > QT serLCD red wire
                    MCP2221  GND > QT serLCD black wire
+                   ISO154x QT <> QT FeatherS2
                    ISO154x SDA (blue wire) on FeatherS2 side of ISO154x > QT serLCD
                    ISO154x SCL (yellow wire) on FeatherS2 side of IS154x > QT serLCD
+
+Serial connection: MCP2221 TX > FeatherS2 RX
+                   MCP2221 RX > FeatherS2 TX
+                   MCP2221 GND > Feather GND
 ```
 This project uses circuitpython.
 
