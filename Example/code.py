@@ -168,10 +168,14 @@ if use_dotstar:
 
 biLdIsOn = False # Flag for the built-in blue led
 
+# Buffers
+rx_buffer_len = 151
+rx_buffer = bytearray(rx_buffer_len * b'\x00')
+
 # +-----------------------------------------------+
 # | Create an instance of the UART object class   |
 # +-----------------------------------------------+
-uart = busio.UART(board.TX, board.RX, baudrate=4800, timeout=0, receiver_buffer_size=151)  # board.RX, board.TX)
+uart = busio.UART(board.TX, board.RX, baudrate=4800, timeout=0, receiver_buffer_size=rx_buffer_len)  # board.RX, board.TX)
 #uart = board.UART()
 
 if sys.version_info > (3,):
@@ -248,10 +252,6 @@ lacStopMsgShown = False
 lacTaxyMsgShown = False
 acStopInitMonot = 0
 acStopInterval = 6000 # mSec
-
-# Buffers
-rx_buffer_len = 160
-rx_buffer = bytearray(rx_buffer_len * b'\x00')
 
 # Classes
 my_msgs = gps_msgs()
@@ -716,7 +716,7 @@ def loop():
         Return: int
 """
 def ck_uart():
-    global rx_buffer, msg_nr, loop_time, diagn_dict, nRMC, nGGA
+    global rx_buffer, msg_nr, loop_time, diagn_dict, nRMC, nGGA, my_debug
     TAG = 'ck_uart(): '
     nr_bytes = i = 0
     delay_ms = 0.2
@@ -762,6 +762,7 @@ def ck_uart():
                     continue
                 else:
                     nRMC = n2
+                    print(TAG+"$GPRMC msg received")
 
                 n3 = rx_buffer_s.find('$GPGGA')
                 if n3 < 0:
@@ -769,6 +770,7 @@ def ck_uart():
                     continue
                 else:
                     nGGA = n3
+                    print(TAG+"$GPGGA msg received")
                 n4 = int(nr_bytes*0.75) # get 3/4 of length of characters received
                 if my_debug:
                     print(TAG+"n1 = {}, n2 = {}, n3= {}, n4 ={}".format(n1, n2, n3, n4))
