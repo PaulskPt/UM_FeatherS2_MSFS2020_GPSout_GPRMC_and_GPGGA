@@ -20,7 +20,14 @@ c) Sparkfun serLCD 4x20: ```https://www.sparkfun.com/products/16398```;
 d) Adafruit MCP2221A breakout - General Purpose USB to GPIO ADC I2C - Stemma QT / Qwiic (Product ID 4471 ```https://www.adafruit.com/product/4471```)
    or: other type of USB to RS232 serial converter (FTDI), e.g.: model YP-05. Attention: use a model that is able to provide logic 3V3 level signals.
 
+e) Adafruit ISO154x, Bidirectional I2C Isolator STEMMA QT/Qwii ( Product nr 4903, ```https://www.adafruit.com/product/4903```)
+
 Flow of the GPS data:  PC MSFS2020 w FSUIPC7 > COMx > MCP2221 TX/RX > FeatherS2 RX/TX.
+I2C connection #1: MCP2221 QT > QT ISO154x QT > QT FeatherS2
+I2C connection #2: MCP2221 5V > QT serLCD red wire
+                   MCP2221  GND > QT serLCD black wire
+                   ISO154x SDA (blue wire) on FeatherS2 side of ISO154x > QT serLCD
+                   ISO154x SCL (yellow wire) on FeatherS2 side of IS154x > QT serLCD
 
 This project uses circuitpython.
 
