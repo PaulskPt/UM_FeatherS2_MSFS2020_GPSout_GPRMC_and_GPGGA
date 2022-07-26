@@ -1,0 +1,61 @@
+Wednesday 2022-07-06 14h05 utc+1
+Platform: Unexpected Maker FeatherS2 (ESP32S2)
+Firmware: tiny-usb bootloader
+and Adafruit CircuitPython 8.0.0-alpha.1 on 2022-06-09; FeatherS2 with ESP32S2
+IDE: Mu-editor v1.1.0b7 
+
+REPL output:
+
+soft reboot
+
+Auto-reload is on. Simply save files over USB to run them or enter REPL to disable.
+code.py output:
+get_os_info(): my_machine= FeatherS2 with ESP32S2
+OS: (sysname='ESP32S2', nodename='ESP32S2', release='8.0.0', version='8.0.0-alpha.1 on 2022-06-09', machine='FeatherS2 with ESP32S2').
+CPU ID: 2243261.
+loop(): my_machine= "FeatherS2 with ESP32S2"
+
+MSFS2020 GPS GPRMC data reception decoder sketch by Paulsk (mailto: ct7agr@live.com.pt). 
+
+Number of loops in this run: 99
+........................
+
+Start of loop 1
+loop(): characters rcvd:  152
+loop(): split_types() result = True
+loop(): handling msg nr: 01
+lcd_pr_msgs(): Duration rx -> lcd: 332 mSecs
+Waiting for serial com line to become available...
+End of loop  1
+........................
+
+Start of loop 2
+loop(): characters rcvd:  152
+loop(): split_types() result = True
+loop(): handling msg nr: 02
+lcd_pr_msgs(): Duration rx -> lcd: 318 mSecs
+End of loop  2
+........................
+
+Start of loop 3
+loop(): characters rcvd:  152
+loop(): split_types() result = True
+loop(): handling msg nr: 03
+lcd_pr_msgs(): Duration rx -> lcd: 318 mSecs
+End of loop  3
+........................
+
+Start of loop 4
+loop(): characters rcvd:  152
+loop(): split_types() result = True
+loop(): handling msg nr: 04
+'Ctrl-C' pressed. Going to quit...
+Traceback (most recent call last):
+  File "code.py", line 1188, in <module>
+  File "code.py", line 1171, in main
+  File "code.py", line 664, in loop
+KeyboardInterrupt: 
+
+Code done running.
+
+Press any key to enter the REPL. Use CTRL-D to reload.
