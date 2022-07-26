@@ -11,7 +11,7 @@ Used hardware:
 
 a) a Personal computer running Microsoft Windows 11 or a Microsoft XBox seriex X (not tested) on which are installed and running: 
     - Microsoft Flight simulator 2020 (MSFS2020) (https://www.flightsimulator.com/);
-    - FSUIPC7 from Pete & Jowhn Dowson (http://www.fsuipc.com/)
+    - FSUIPC7 from Pete & John Dowson (http://www.fsuipc.com/)
 
 b) Unexpected Maker FeatherS2: https://unexpectedmaker.com/shop or: https://www.adafruit.com/product/4769;
 
