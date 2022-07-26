@@ -60,7 +60,7 @@
     Added an Adafruit MCP2221a Microchip.com USB-I2C/UART Combo. Seerial Number: 0003175453
     VID 0x04D8, PID 0x00DD. Power source: bus-powered
     GP0 = 2 (LED_URX)
-    GP1 = 3 (LED_UTX)
+    GP1 = 3 (LED_UTX) (connected to external blue LED)
     GP2 = 1 (USBCFG)
     GP3 = 1 (LED_I2C)
 """
