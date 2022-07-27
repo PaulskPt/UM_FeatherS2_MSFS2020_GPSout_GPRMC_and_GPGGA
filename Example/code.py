@@ -588,6 +588,7 @@ def loop():
     lRetval = True  # assume positive
     chrs_rcvd = 0
     lstop = False
+    lcd_cleared = False
     lcd.clear()
     lcd.set_cursor(0, 0)
     lcd.write("MSFS 2020      ")
@@ -635,17 +636,19 @@ def loop():
             if chrs_rcvd > 0:
                 lResult = split_types()
                 print(TAG+"split_types() result = {}".format(lResult))
-                am_stat = ac_status()
+                ac_status()
                 if am_stat == ac_stopped:
                     #if not lacStopMsgShown and not lacTaxyMsgShown:
                     lcd.set_cursor(0, 3)
                     lcd.write("About to receive...")
 
                 if lResult == True:
-                    am_stat = ac_status()
-                    if am_stat > ac_taxying:
-                        if am_last_stat >= ac_taxying:
-                            lcd.clear()  # clear the serLCD
+                    #ac_status()
+                    if am_stat > ac_taxying: # are we flying?
+                        if am_last_stat < ac_flying: # was the airplane stopped or taxying just before flying?
+                            if not lcd_cleared: # clear only once
+                                lcd.clear()  # clear the serLCD
+                                lcd_cleared = True
                         msg_nr += 1
                         print(TAG+"handling msg nr: {:02d}".format(msg_nr))
                         if use_diagnosics:
@@ -1089,7 +1092,7 @@ def ck_gs():
 """
 # Function copied from: I:\pico\paul_projects\pico\circuitpython\msfs2020_gps_rx_picolipo\2021-09-03_16h49_ver
 def ac_status():
-    global lacStopMsgShown, lacTaxyMsgShown, acStopInitMonot, acStopInterval, am_stat_dict, am_last_stat
+    global lacStopMsgShown, lacTaxyMsgShown, acStopInitMonot, acStopInterval, am_stat, am_stat_dict, am_last_stat
     TAG = "ac_status(): "
     s = "Airplane is stopped or parked"
     t = "Airplane is taxying"
@@ -1148,7 +1151,6 @@ def ac_status():
             lcd.set_cursor(0,1)
             lcd.write(t)
             lacTaxyMsgShown = True
-    return am_stat
 
 def empty_buffer():
     global rx_buffer, rx_buffer_len
