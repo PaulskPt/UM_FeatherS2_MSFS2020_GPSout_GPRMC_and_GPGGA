@@ -590,6 +590,7 @@ def loop():
     ac_stopped_cnt = 0
     ac_flying_cnt = 0
     lstop = False
+    lSplitOK = False
     lcd_cleared = False
     lcd.clear()
     lcd.set_cursor(0, 0)
@@ -636,8 +637,8 @@ def loop():
             chrs_rcvd = ck_uart()
             print(TAG+"characters rcvd: ", chrs_rcvd)
             if chrs_rcvd > 0:
-                lResult = split_types()
-                print(TAG+"split_types() result = {}".format(lResult))
+                lSplitOK = split_types()
+                print(TAG+"split_types() result = {}".format(lSplitOK))
                 ac_status()
                 if am_stat == ac_stopped:
                     ac_stopped_cnt += 1
@@ -652,14 +653,9 @@ def loop():
                         ac_stopped_cnt = 0 # reset when we sure are flying and no incidently gs = 0
                     if ac_flying_cnt > 1000:
                         ac_flying_cnt = 0  # reset
-
-                if lResult == True:
+                if lSplitOK:
                     #ac_status()
-                    if am_stat > ac_taxying: # are we flying?
-                        if am_last_stat < ac_flying: # was the airplane stopped or taxying just before flying?
-                            if not lcd_cleared: # clear only once
-                                lcd.clear()  # clear the serLCD
-                                lcd_cleared = True
+                    if am_stat == ac_flying: # are we flying?
                         msg_nr += 1
                         print(TAG+"handling msg nr: {:02d}".format(msg_nr))
                         if use_diagnosics:
@@ -712,6 +708,7 @@ def loop():
                         print("msg nr: {:2d}, wait time for msg: {:7.4f}. Split result: {}".format(k, v, s))
                     print("Average wait time for msg: {:>5.2f}. Average split result: {:>5.2f}".format(avg_time/le, float(avg_split/le)))
                     diagn_dict = {} # cleanup the diagnostics dict
+            #lcd_cleared = False
         except KeyboardInterrupt:
             ctrl_c_flag = True
             print("\'Ctrl-C\' pressed. Going to quit...")
@@ -1141,8 +1138,8 @@ def ac_status():
         lacStopMsgShown = False
     else:
         am_stat = ac_flying
-        lacStopMsgShown = False
-        lacTaxyMsgShown = False
+        #lacStopMsgShown = False
+        #lacTaxyMsgShown = False
         acStopInitMonot = 0
     am_last_stat = am_stat
     if my_debug:
@@ -1183,7 +1180,7 @@ def empty_buffer():
 
 
 def lcd_pr_msgs():
-    global startup, loop_time, t_elapsed, msg_nr, my_msgs, lcd_maxrows, lacStopMsgShown, lac_Stopped
+    global startup, loop_time, t_elapsed, msg_nr, my_msgs, lcd_maxrows, lacStopMsgShown, lacTaxyMsgShown, lac_Stopped
     TAG = "lcd_pr_msgs(): "
     dp = 0
     msg_itm = 0
@@ -1200,6 +1197,8 @@ def lcd_pr_msgs():
 
     degs = chr(0xdf)
     if startup == -1 or lacStopMsgShown or lacTaxyMsgShown:
+        lacStopMsgShown = False
+        lacTaxyMsgShown = False
         lcd.clear()
     lcd.set_cursor(18, 0)
     lcd.write("{:0>2d}".format(msg_nr))
