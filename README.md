@@ -17,8 +17,10 @@ b) Unexpected Maker FeatherS2: https://unexpectedmaker.com/shop or: https://www.
 
 c) Sparkfun serLCD 4x20: https://www.sparkfun.com/products/16398;
 
-d) Adafruit MCP2221A breakout - General Purpose USB to GPIO ADC I2C - Stemma QT / Qwiic (Product ID 4471 https://www.adafruit.com/product/4471)
-   or: other type of USB to RS232 serial converter (FTDI), e.g.: model YP-05. Attention: use a model that is able to provide logic 3V3 level signals.
+d) Adafruit MCP2221A breakout - General Purpose USB to GPIO ADC I2C - Stemma QT / Qwiic (Product ID 4471 https://www.adafruit.com/product/4471).
+   Other type of USB to RS232 serial converters I tested are:
+   - Adafruit CP2021N Friend - USB to Serial Converter ( Product nr 5335, https://www.adafruit.com/product/5335) (signal levels are 3.3V);
+   - Model YP-05. Attention: use a model that is able to provide or set for logic 3V3 level signals;
 
 e) Adafruit ISO154x, Bidirectional I2C Isolator STEMMA QT/Qwii ( Product nr 4903, https://www.adafruit.com/product/4903)
 
@@ -42,6 +44,17 @@ To receive, filter and use certain elements of GPRMC GPS datagram data sent by a
 From the filtered GPRMC GPS type of datagram this project only uses the ```Track made good true``` and the ```groundspeed```. The track flown by the aircraft is displayed on the 4x20 serLCD, only when the groundspeed value exceeds a certain minimum value set in the micropython script. If the groundspeed is zero the aircraft is assumed to be halted or be parked. In that case the script will display ```Airplane stopped or parked```. When the groundspeed is > 0.2 and < 30 kts, the script will display ```Airplane is taxying```.  As soon as the groundspeed exceeds 30 kts the track flown value will be displayed onto the 4x20 serLCD.
 
 ```
+Notes about the Sparkfun serLCD. 
+- Contrast:
+  The contrast of this device is quite depending on the applied Voltage. 
+  My experience is that you have to experiment.
+  See line 550 of the script:
+  lcd.set_contrast(150)  # default value 120
+- Pins are touch sensitive:
+  Touching certain pins causes artifacts in the screen that can only be deleted by issuing a lcd.clear() 
+  or resetting the device.
+
+
 +------------------------------------+
 | USB-UART-to-FeatherS2 TX/RX pins:  |
 +-----------------+------------------+

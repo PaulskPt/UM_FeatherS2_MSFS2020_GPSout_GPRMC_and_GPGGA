@@ -57,12 +57,15 @@
     of the USB-to-RS232 interface board and in FSUIPC7 GPS Out set for a baudrate of 4800 bps.
 
     Update 2022-07-25.
-    Added an Adafruit MCP2221a Microchip.com USB-I2C/UART Combo. Seerial Number: 0003175453
+    Added an Adafruit MCP2221a Microchip.com USB-I2C/UART Combo. Serial Number: 0003175453
     VID 0x04D8, PID 0x00DD. Power source: bus-powered
     GP0 = 2 (LED_URX)
     GP1 = 3 (LED_UTX) (connected to external blue LED)
     GP2 = 1 (USBCFG)
     GP3 = 1 (LED_I2C)
+
+    Update 2022-07-27 test with an Adafruit CP2101N.
+    Worked OK after Windows driver "Silicon Labs CP210x USB to UART bridge (COM25) was present.
 """
 
 import board
@@ -240,10 +243,12 @@ msg_nr = 0
 
 # next four defs copied from:
 # I:\pico\paul_projects\pico\circuitpython\msfs2020_gps_rx_picolipo\2021-09-03_16h49_ver
-ac_stopped = 0
+ac_none = 0
+ac_stopped = 1
 ac_taxying = 2
 ac_flying = 4
 
+am_last_stat = ac_none
 am_stat = ac_stopped # am_stat = airplane movement status
 am_stat_dict = {0:"stopped", 2:"taxying", 4: "flying"}
 lac_Stopped = True
@@ -540,7 +545,9 @@ def setup():
 
     # lcd.backlight();
     lcd.system_messages(False)
-    lcd.set_contrast(120)  # Set to 50 for 5 Volt. Set lcd contrast to default value (was: 120). Value 50 worked fine with UM FeatherS2
+    # 150 for system with CP2101N (5Volt)
+    #  50 for system with CP2221a
+    lcd.set_contrast(150)  # Set to 50 for 5 Volt. Set lcd contrast to default value (was: 120). Value 50 worked fine with UM FeatherS2
     lcd_dflt_clr()  # set default lcd backlight color to orange
     lcd.cursor(0)  # do not show cursor (use 2 for show cursor)
     lcd.blink(0)   # do not blink cursor
@@ -637,6 +644,8 @@ def loop():
                 if lResult == True:
                     am_stat = ac_status()
                     if am_stat > ac_taxying:
+                        if am_last_stat >= ac_taxying:
+                            lcd.clear()  # clear the serLCD
                         msg_nr += 1
                         print(TAG+"handling msg nr: {:02d}".format(msg_nr))
                         if use_diagnosics:
@@ -1080,7 +1089,7 @@ def ck_gs():
 """
 # Function copied from: I:\pico\paul_projects\pico\circuitpython\msfs2020_gps_rx_picolipo\2021-09-03_16h49_ver
 def ac_status():
-    global ac_status, ac_stopped, ac_taxying, ac_flying, lacStopMsgShown, lacTaxyMsgShown, acStopInitMonot, acStopInterval, am_stat_dict
+    global lacStopMsgShown, lacTaxyMsgShown, acStopInitMonot, acStopInterval, am_stat_dict, am_last_stat
     TAG = "ac_status(): "
     s = "Airplane is stopped or parked"
     t = "Airplane is taxying"
@@ -1107,7 +1116,7 @@ def ac_status():
         lacStopMsgShown = False
         lacTaxyMsgShown = False
         acStopInitMonot = 0
-
+    am_last_stat = am_stat
     if my_debug:
         print(TAG,"value of v_gs = {}".format(v_gs), end='\n')
         print(TAG,"am_stat =", am_stat_dict[am_stat], end='\n')
