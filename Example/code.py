@@ -731,7 +731,9 @@ def ck_uart():
     global rx_buffer, msg_nr, loop_time, diagn_dict, nRMC, nGGA, my_debug
     TAG = 'ck_uart(): '
     nr_bytes = i = 0
+    tot_nr_bytes = 0
     delay_ms = 0.2
+    rx_buffer_s = b = ""
     if use_diagnosics:
         rx_wait_start = monotonic_ns()
     while True:
@@ -743,9 +745,8 @@ def ck_uart():
         nr_bytes = len(rx_buffer)
         if my_debug:
             print(TAG+"nr of bytes= ", nr_bytes)
-            print(TAG+"rcvd data: {}".format(rx_buffer),end="\n")
             print(TAG+"type(rx_buffer)=", type(rx_buffer))
-
+            print(TAG+"rcvd data: {}".format(rx_buffer),end="\n")
         #for i in range(5):
         #    sleep(delay_ms)
         loop_time = monotonic_ns()
@@ -760,10 +761,13 @@ def ck_uart():
             sleep(delay_ms)
             continue
         if nr_bytes > 1:
-            rx_buffer_s = rx_buffer.decode(encoding)
+            if nr_bytes < rx_buffer_len:
+                rx_buffer_s += rx_buffer.decode(encoding) # if receiving a 2nd part: add it.
             # Check for '*' in tail. If present, the message is very probably complete.
             tail = rx_buffer_s[-15:]
             n1 = tail.find('*') # find '*' in tail 10 characters. If not found, loop
+            if my_debug:
+                print(TAG+"* found in tail of msg at: ", n1)
             if n1 < 0: # no '*' in tail
                 sleep(delay_ms)
                 continue
