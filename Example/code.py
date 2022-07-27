@@ -172,7 +172,7 @@ if use_dotstar:
 biLdIsOn = False # Flag for the built-in blue led
 
 # Buffers
-rx_buffer_len = 151
+rx_buffer_len = 152  # was: 151
 rx_buffer = bytearray(rx_buffer_len * b'\x00')
 
 # +-----------------------------------------------+
@@ -587,6 +587,8 @@ def loop():
     TAG = "loop(): "
     lRetval = True  # assume positive
     chrs_rcvd = 0
+    ac_stopped_cnt = 0
+    ac_flying_cnt = 0
     lstop = False
     lcd_cleared = False
     lcd.clear()
@@ -638,9 +640,18 @@ def loop():
                 print(TAG+"split_types() result = {}".format(lResult))
                 ac_status()
                 if am_stat == ac_stopped:
-                    #if not lacStopMsgShown and not lacTaxyMsgShown:
-                    lcd.set_cursor(0, 3)
-                    lcd.write("About to receive...")
+                    ac_stopped_cnt += 1
+                    print(TAG+"ac_stopped_cnt=", ac_stopped_cnt)
+                    if ac_stopped_cnt >= 5:
+                        #if not lacStopMsgShown and not lacTaxyMsgShown:
+                        lcd.set_cursor(0, 3)
+                        lcd.write("About to receive...")
+                elif am_stat == ac_flying:
+                    ac_flying_cnt += 1
+                    if ac_flying_cnt >= 5:
+                        ac_stopped_cnt = 0 # reset when we sure are flying and no incidently gs = 0
+                    if ac_flying_cnt > 1000:
+                        ac_flying_cnt = 0  # reset
 
                 if lResult == True:
                     #ac_status()
@@ -734,6 +745,7 @@ def ck_uart():
     tot_nr_bytes = 0
     delay_ms = 0.2
     rx_buffer_s = b = ""
+    n1 = n2 = n3 = n4 = 0
     if use_diagnosics:
         rx_wait_start = monotonic_ns()
     while True:
@@ -761,36 +773,39 @@ def ck_uart():
             sleep(delay_ms)
             continue
         if nr_bytes > 1:
-            if nr_bytes < rx_buffer_len:
-                rx_buffer_s += rx_buffer.decode(encoding) # if receiving a 2nd part: add it.
+            tot_nr_bytes += nr_bytes
+            print(TAG+"tot_nr_bytes=", tot_nr_bytes)
+            rx_buffer_s += rx_buffer.decode(encoding) # if receiving a 2nd part: add it.
+            print(TAG+"rx_buffer_s=", rx_buffer_s)
             # Check for '*' in tail. If present, the message is very probably complete.
             tail = rx_buffer_s[-15:]
-            n1 = tail.find('*') # find '*' in tail 10 characters. If not found, loop
+            print(TAG+"tail=", tail)
+            n0 = tail.find('*') # find '*' in tail 10 characters. If not found, loop
             if my_debug:
-                print(TAG+"* found in tail of msg at: ", n1)
-            if n1 < 0: # no '*' in tail
+                print(TAG+"* found in tail of msg at: ", n0)
+            if n0 < 0: # no '*' in tail
                 sleep(delay_ms)
                 continue
-            else:
-                n2 = rx_buffer_s.find('$GPRMC')
+            if n1 == 0:
+                n1 = rx_buffer_s.find('$GPRMC')
+                if n1 < 0:
+                    sleep(delay_ms)
+                    continue
+                else:
+                    nRMC = n1
+                    print(TAG+"$GPRMC msg received")
+            if n2 == 0:
+                n2 = rx_buffer_s.find('$GPGGA')
                 if n2 < 0:
                     sleep(delay_ms)
                     continue
                 else:
-                    nRMC = n2
-                    print(TAG+"$GPRMC msg received")
-
-                n3 = rx_buffer_s.find('$GPGGA')
-                if n3 < 0:
-                    sleep(delay_ms)
-                    continue
-                else:
-                    nGGA = n3
+                    nGGA = n2
                     print(TAG+"$GPGGA msg received")
-                n4 = int(nr_bytes*0.75) # get 3/4 of length of characters received
+                n3 = int(tot_nr_bytes*0.75) # get 3/4 of length of characters received
                 if my_debug:
-                    print(TAG+"n1 = {}, n2 = {}, n3= {}, n4 ={}".format(n1, n2, n3, n4))
-                if n2 > n4: # check if $GPRMC occurs at more than 3/4 of the characters received
+                    print(TAG+"n0 = {}, n1 = {}, n2= {}, n3 ={}".format(n0, n1, n2, n3))
+                if n1 > n3: # check if $GPRMC occurs at more than 3/4 of the characters received
                     sleep(delay_ms)
                     continue
                 else:
@@ -800,7 +815,10 @@ def ck_uart():
                         rx_wait_duration = float((rx_wait_stop - rx_wait_start) / 1000000000) # convert nSec to mSec
                         diagn_dict[msg_nr+1] = {0: rx_wait_duration, 1: -1} # add a key/value pair for diagnostics
                         print(TAG+"it took {:6.2f} seconds for a complete msg ($GPRMC & $GPGGA) to be received".format(rx_wait_duration))
-                    return nr_bytes
+                    rx_buffer = rx_buffer_s.encode(encoding)
+                    if my_debug:
+                        print(TAG+"rx_bufffer returned=", rx_buffer)
+                    return tot_nr_bytes
         elif nr_bytes == 1:
             if rx_buffer[0] == b'\x00':
                 sleep(delay_ms)
@@ -811,7 +829,7 @@ def ck_uart():
             empty_buffer()
             sleep(delay_ms)
             continue
-    #return nr_bytes
+    #return tot_nr_bytes
 
 """
    find_all(c) -> dict
@@ -828,13 +846,15 @@ def find_all(c):
         c2 = chr(c)
     elif type(c) is str:
         c2 = c
-    t_rx_buffer = rx_buffer.decode()
-    le = len(t_rx_buffer)
+    rx_buffer_s = rx_buffer.decode()
+    if my_debug:
+        print("find_all(): rx_buffer=", rx_buffer)
+    le = len(rx_buffer_s)
     if le > 0:
-        ret = t_rx_buffer.count(c2)
+        ret = rx_buffer_s.count(c2)
         o_cnt = 0
         for i in range(le):
-            if t_rx_buffer[i] == c2:
+            if rx_buffer_s[i] == c2:
                 f_dict[o_cnt] = i
                 o_cnt += 1
     return f_dict
@@ -877,6 +897,7 @@ def split_types():
         le_dict = len(f_dict)
         if my_debug:
             print(TAG+"f_dict= {}, length dict = {}".format(f_dict, le_dict))
+
     if le_dict < 2:
         print(TAG+"exiting... f_dict length < 2")
         return False
