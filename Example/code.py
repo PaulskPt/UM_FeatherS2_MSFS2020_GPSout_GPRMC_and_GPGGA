@@ -1214,6 +1214,8 @@ def lcd_pr_msgs():
                     s0 = "{: >2s}{}{:0>2s}\'{:0>2s}.{:0>2s}\"".format(lat_v[:2], degs, lat_v[2:4], lat_v[5:7],lat_v[7:])
                 elif dp == 3:
                     s0 = "{: >2s}{}{:0>2s}\'{:0>2s}.{:0>2s}\" ".format(lat_v[:1], degs, lat_v[1:3], lat_v[4:6],lat_v[6:])
+                else:
+                    s0 = "             " # 13 spaces
             s = my_msgs.read(latID) + "    " + s0
         if msg_itm == lon:
             lon_v = my_msgs.read(lon)
@@ -1223,6 +1225,8 @@ def lcd_pr_msgs():
                     s0 = "{: >2s}{}{:0>2s}\'{:0>2s}.{:0>2s}\"".format(lon_v[:3], degs, lon_v[3:5], lon_v[6:8], lon_v[8:])
                 elif dp == 4:
                     s0 = "{: >2s}{}{:0>2s}\'{:0>2s}.{:0>2s}\" ".format(lon_v[:2], degs, lon_v[2:4], lon_v[5:7], lon_v[7:])
+                else:
+                    s0 = "                " # 16 spaces
             s = my_msgs.read(lonID) + "   " + s0
         if msg_itm == gs:
             #gs0 = my_msgs.read(gs)
