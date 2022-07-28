@@ -1,8 +1,8 @@
 # UM_FeatherS2_MSFS2020_GPSout_GPRMC_and_GPGGA
- RX fliter and dispay MSFS2020 GPS data on 4x20 serLCD
+ Receive, fliter and dispay MSFS2020 GPS data on a 4x20 character serLCD
 
 
-Display flown track to Sparkfun serLCD and use ground speed to control displayed data
+Display flown track and other GPS data to Sparkfun serLCD and use ground speed to control the displayed data
 
 Software:
 See 'Example'
