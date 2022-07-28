@@ -10,8 +10,8 @@ See 'Example'
 Used hardware:
 
 a) a Personal computer running Microsoft Windows 11 or a Microsoft XBox seriex X (not tested) on which are installed and running: 
-    - Microsoft Flight simulator 2020 (MSFS2020) (https://www.flightsimulator.com/);
-    - FSUIPC7 from Pete & John Dowson (http://www.fsuipc.com/)
+    - (1) Microsoft Flight simulator 2020 (MSFS2020) (https://www.flightsimulator.com/);
+    - (2) FSUIPC7 add-on app from Pete & John Dowson (http://www.fsuipc.com/);
 
 b) Unexpected Maker FeatherS2: https://unexpectedmaker.com/shop or: https://www.adafruit.com/product/4769;
 
@@ -41,7 +41,13 @@ This project uses circuitpython.
 Goals of this project:
 
 To receive, filter and use certain elements of GPRMC GPS datagram data sent by an add-on called ```FSUIPC7``` to the ```Microsoft Flight Simulator 2020 (FS2020)```.
-From the filtered GPRMC GPS type of datagram this project only uses the ```Track made good true``` and the ```groundspeed```. The track flown by the aircraft is displayed on the 4x20 serLCD, only when the groundspeed value exceeds a certain minimum value set in the micropython script. If the groundspeed is zero the aircraft is assumed to be halted or be parked. In that case the script will display ```Airplane stopped or parked```. When the groundspeed is > 0.2 and < 30 kts, the script will display ```Airplane is taxying```.  As soon as the groundspeed exceeds 30 kts the track flown value will be displayed onto the 4x20 serLCD.
+From the filtered GPRMC GPS type of datagram this project only uses the ```Track made good true``` and the ```groundspeed```. The track flown by the aircraft is displayed on the 4x20 serLCD, only when the groundspeed value exceeds a certain minimum value set in the micropython script. If the groundspeed is zero the aircraft is assumed to be halted or be parked. In that case the script will display ```Airplane stopped or parked```. When the groundspeed is > 0.2 and < 30 kts, the script will display ```Airplane is taxying```.  As soon as the groundspeed exceeds 30 kts the following data will be displayed onto the 4x20 serLCD:
+```
+- Latitude/Longitude;
+- Altitude;
+- Groundspeed
+- Track (true) flown. 
+```
 
 ```
 Notes about the Sparkfun serLCD. 
